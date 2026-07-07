@@ -1,0 +1,19 @@
+/* Estilos generales para el SIGS */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.card {
+    border-radius: 8px;
+    border: none;
+}
+
+.card-header {
+    border-top-left-radius: 8px !important;
+    border-top-right-radius: 8px !important;
+}
+
+.table th {
+    background-color: #343a40;
+    color: white;
+}
