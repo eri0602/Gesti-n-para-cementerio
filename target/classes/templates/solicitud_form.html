@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+
+<th:block th:insert="~{layout/header}"></th:block>
+
+<head><title>SIGS — Nueva Solicitud</title></head>
+<body>
+
+<div class="page-header">
+  <h1><i class="bi bi-file-earmark-plus-fill me-2" style="color:var(--color-accent)"></i>Nueva Solicitud de Sepultura</h1>
+  <p>Paso 1 de 2 — Ingrese los datos del deudo solicitante</p>
+</div>
+
+<!-- Barra de pasos -->
+<div class="steps-bar mb-4">
+  <div class="step-item active">
+    <div class="step-number">1</div>
+    Datos del Deudo
+  </div>
+  <div class="step-item">
+    <div class="step-number">2</div>
+    Datos del Fallecido
+  </div>
+  <div class="step-item">
+    <div class="step-number">3</div>
+    Comprobante
+  </div>
+</div>
+
+<!-- Mensajes de error (Flash) -->
+<div th:if="${errorMsg}" class="alert-sigs alert-danger" role="alert">
+  <i class="bi bi-exclamation-triangle-fill"></i>
+  <span th:text="${errorMsg}"></span>
+</div>
+
+<div class="card">
+  <div class="card-header-custom">
+    <div class="card-header-icon" style="background:rgba(49,130,206,.1); color:var(--color-accent);">
+      <i class="bi bi-person-vcard-fill"></i>
+    </div>
+    <h5>Información del Solicitante (Deudo)</h5>
+  </div>
+  <div class="card-body-custom">
+
+    <form th:action="@{/solicitud/nueva}" method="post"
+          th:object="${solicitud}" data-validate>
+
+      <div class="row g-3">
+
+        <div class="col-md-4">
+          <label for="dniDeudo" class="form-label">
+            <i class="bi bi-credit-card me-1"></i> DNI del Deudo
+          </label>
+          <input type="text" id="dniDeudo" name="dniDeudo"
+                 th:field="*{dniDeudo}"
+                 class="form-control"
+                 placeholder="12345678"
+                 maxlength="8" pattern="\d{8}"
+                 data-validate-dni
+                 title="Exactamente 8 dígitos numéricos" required/>
+          <div th:if="${#fields.hasErrors('dniDeudo')}" class="invalid-feedback d-block"
+               th:errors="*{dniDeudo}"></div>
+        </div>
+
+        <div class="col-md-8">
+          <label for="nombreDeudo" class="form-label">
+            <i class="bi bi-person me-1"></i> Nombre Completo del Deudo
+          </label>
+          <input type="text" id="nombreDeudo" name="nombreDeudo"
+                 th:field="*{nombreDeudo}"
+                 class="form-control"
+                 placeholder="Ej: Juan Alberto García Pérez"
+                 maxlength="100" required/>
+          <div th:if="${#fields.hasErrors('nombreDeudo')}" class="invalid-feedback d-block"
+               th:errors="*{nombreDeudo}"></div>
+        </div>
+
+        <div class="col-md-6">
+          <label for="parentesco" class="form-label">
+            <i class="bi bi-diagram-3 me-1"></i> Parentesco con el Fallecido
+          </label>
+          <input type="text" id="parentesco" name="parentesco"
+                 th:field="*{parentesco}"
+                 class="form-control"
+                 placeholder="Ej: Hijo, Cónyuge, Hermano..."
+                 maxlength="50" required/>
+          <div th:if="${#fields.hasErrors('parentesco')}" class="invalid-feedback d-block"
+               th:errors="*{parentesco}"></div>
+        </div>
+
+      </div><!-- /row -->
+
+      <hr class="section-divider"/>
+
+      <div class="d-flex justify-content-end gap-3">
+        <a th:href="@{/dashboard}" class="btn-sigs btn-sigs-secondary">
+          <i class="bi bi-arrow-left"></i> Cancelar
+        </a>
+        <button type="submit" class="btn-sigs btn-sigs-primary">
+          <i class="bi bi-arrow-right-circle-fill"></i> Registrar y Continuar
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<th:block th:insert="~{layout/footer}"></th:block>
+</body>
+</html>

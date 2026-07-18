@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="es">
+
+<th:block th:insert="~{layout/header}"></th:block>
+
+<div class="page-header">
+  <h1><i class="bi bi-grid-1x2-fill me-2" style="color:var(--color-accent)"></i>Dashboard</h1>
+  <p>Bienvenido al Sistema de Gestión de Expedientes de Fallecidos — <strong sec:authentication="name">usuario</strong></p>
+</div>
+
+<!-- KPI Cards -->
+<div class="row g-3 mb-4">
+  <div class="col-md-4">
+    <div class="kpi-card">
+      <div class="kpi-icon blue"><i class="bi bi-folder2-open"></i></div>
+      <div>
+        <div class="kpi-value" th:text="${totalExpedientes}">0</div>
+        <div class="kpi-label">Total Expedientes</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="kpi-card">
+      <div class="kpi-icon green"><i class="bi bi-file-earmark-person"></i></div>
+      <div>
+        <div class="kpi-value" th:text="${totalFallecidos}">0</div>
+        <div class="kpi-label">Fallecidos Registrados</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="kpi-card">
+      <div class="kpi-icon gold"><i class="bi bi-people-fill"></i></div>
+      <div>
+        <div class="kpi-value" th:text="${totalSolicitudes}">0</div>
+        <div class="kpi-label">Solicitudes de Deudos</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Accesos rápidos + últimos expedientes -->
+<div class="row g-4">
+
+  <!-- Accesos rápidos -->
+  <div class="col-lg-4">
+    <div class="card h-100">
+      <div class="card-header-custom">
+        <div class="card-header-icon" style="background:rgba(49,130,206,.1); color:var(--color-accent);">
+          <i class="bi bi-lightning-fill"></i>
+        </div>
+        <h5>Accesos Rápidos</h5>
+      </div>
+      <div class="card-body-custom d-flex flex-column gap-3">
+        <a th:href="@{/solicitud/nueva}" class="btn-sigs btn-sigs-primary">
+          <i class="bi bi-file-earmark-plus-fill"></i> Nueva Solicitud de Sepultura
+        </a>
+        <a th:href="@{/consulta}" class="btn-sigs btn-sigs-secondary">
+          <i class="bi bi-search"></i> Consultar Expedientes
+        </a>
+        <a sec:authorize="hasRole('admin')" th:href="@{/reportes}" class="btn-sigs btn-sigs-warning">
+          <i class="bi bi-bar-chart-fill"></i> Generar Reportes
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Últimos expedientes -->
+  <div class="col-lg-8">
+    <div class="card h-100">
+      <div class="card-header-custom">
+        <div class="card-header-icon" style="background:rgba(72,187,120,.1); color:var(--color-success-lt);">
+          <i class="bi bi-clock-history"></i>
+        </div>
+        <h5>Últimos Expedientes Registrados</h5>
+      </div>
+      <div class="card-body-custom p-0">
+        <div th:if="${ultimosExpedientes.empty}" class="p-4">
+          <div class="alert-sigs alert-info">
+            <i class="bi bi-info-circle-fill"></i>
+            <span>Aún no hay expedientes registrados en el sistema.</span>
+          </div>
+        </div>
+        <div class="table-responsive" th:if="${!ultimosExpedientes.empty}">
+          <table class="table-sigs">
+            <thead>
+              <tr>
+                <th>N° Expediente</th>
+                <th>Fallecido</th>
+                <th>DNI</th>
+                <th>Fecha Registro</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="exp : ${ultimosExpedientes}">
+                <td><strong th:text="${exp.numeroExpediente}">-</strong></td>
+                <td th:text="${exp.fallecido.nombres + ' ' + exp.fallecido.apellidos}">-</td>
+                <td th:text="${exp.fallecido.dni}">-</td>
+                <td th:text="${#temporals.format(exp.fechaRegistro, 'dd/MM/yyyy')}">-</td>
+                <td>
+                  <a th:href="@{/expediente/detalle(id=${exp.idExpediente})}"
+                     class="btn-sigs btn-sigs-secondary btn-sigs-sm">
+                    <i class="bi bi-eye-fill"></i> Ver
+                  </a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<th:block th:insert="~{layout/footer}"></th:block>
+
+</body>
+</html>

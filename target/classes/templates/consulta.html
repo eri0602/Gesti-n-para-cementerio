@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="es">
+
+<th:block th:insert="~{layout/header}"></th:block>
+
+<head><title>SIGS — Consultar Expedientes</title></head>
+<body>
+
+<div class="page-header">
+  <h1><i class="bi bi-search me-2" style="color:var(--color-accent)"></i>Consultar Expedientes</h1>
+  <p>Use los filtros para encontrar expedientes. Todos los campos son opcionales y combinables.</p>
+</div>
+
+<!-- Formulario de filtros -->
+<div class="card mb-4">
+  <div class="card-header-custom">
+    <div class="card-header-icon" style="background:rgba(49,130,206,.1); color:var(--color-accent);">
+      <i class="bi bi-funnel-fill"></i>
+    </div>
+    <h5>Filtros de Búsqueda</h5>
+  </div>
+  <div class="card-body-custom">
+    <form method="get" th:action="@{/consulta}">
+      <input type="hidden" name="buscar" value="1"/>
+      <div class="row g-3">
+        <div class="col-md-3">
+          <label for="fNumeroExpediente" class="form-label">N° de Expediente</label>
+          <input type="text" id="fNumeroExpediente" name="numeroExpediente"
+                 class="form-control" placeholder="EXP-2026-0001"
+                 th:value="${numeroExpediente}"/>
+        </div>
+        <div class="col-md-3">
+          <label for="fDni" class="form-label">DNI del Fallecido</label>
+          <input type="text" id="fDni" name="dni"
+                 class="form-control" placeholder="12345678"
+                 maxlength="8" th:value="${dni}"/>
+        </div>
+        <div class="col-md-3">
+          <label for="fNombres" class="form-label">Nombres</label>
+          <input type="text" id="fNombres" name="nombres"
+                 class="form-control" placeholder="Contiene..."
+                 th:value="${nombres}"/>
+        </div>
+        <div class="col-md-3">
+          <label for="fApellidos" class="form-label">Apellidos</label>
+          <input type="text" id="fApellidos" name="apellidos"
+                 class="form-control" placeholder="Contiene..."
+                 th:value="${apellidos}"/>
+        </div>
+        <div class="col-md-2">
+          <label for="fEdad" class="form-label">Edad</label>
+          <input type="number" id="fEdad" name="edad"
+                 class="form-control" placeholder="Ej: 65" min="0" max="130"
+                 th:value="${edad}"/>
+        </div>
+        <div class="col-md-3">
+          <label for="fSexo" class="form-label">Sexo</label>
+          <select id="fSexo" name="sexo" class="form-select">
+            <option value="">— Todos —</option>
+            <option value="Masculino" th:selected="${sexo == 'Masculino'}">Masculino</option>
+            <option value="Femenino"  th:selected="${sexo == 'Femenino'}">Femenino</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label for="fFechaRegistro" class="form-label">Fecha de Registro</label>
+          <input type="date" id="fFechaRegistro" name="fechaRegistro"
+                 class="form-control" th:value="${fechaRegistro}"/>
+        </div>
+        <div class="col-md-4 d-flex align-items-end gap-2">
+          <a th:href="@{/consulta}" class="btn-sigs btn-sigs-secondary">
+            <i class="bi bi-eraser-fill"></i> Limpiar
+          </a>
+          <button type="submit" class="btn-sigs btn-sigs-primary">
+            <i class="bi bi-search"></i> Buscar
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Resultados -->
+<div th:if="${busquedaRealizada}">
+  <div th:if="${resultados.empty}" class="alert-sigs alert-info">
+    <i class="bi bi-info-circle-fill"></i>
+    <span>No se encontraron expedientes con los criterios indicados.</span>
+  </div>
+
+  <div class="card" th:if="${!resultados.empty}">
+    <div class="card-header-custom">
+      <div class="card-header-icon" style="background:rgba(72,187,120,.1); color:var(--color-success-lt);">
+        <i class="bi bi-list-ul"></i>
+      </div>
+      <h5>Resultados
+        <span class="ms-2 fw-normal text-secondary" style="font-size:.85rem;"
+              th:text="'(' + ${resultados.size()} + ' encontrados)'"></span>
+      </h5>
+    </div>
+    <div class="card-body-custom p-0">
+      <div class="table-responsive">
+        <table class="table-sigs">
+          <thead>
+            <tr>
+              <th>N° Expediente</th>
+              <th>DNI</th>
+              <th>Fallecido</th>
+              <th>Edad</th>
+              <th>Sexo</th>
+              <th>Fecha Registro</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="exp : ${resultados}">
+              <td><strong th:text="${exp.numeroExpediente}">-</strong></td>
+              <td th:text="${exp.fallecido.dni}">-</td>
+              <td th:text="${exp.fallecido.nombres + ' ' + exp.fallecido.apellidos}">-</td>
+              <td th:text="${exp.fallecido.edad + ' años'}">-</td>
+              <td>
+                <span th:class="${exp.fallecido.sexo == 'Masculino' ? 'badge-sexo-m' : 'badge-sexo-f'}"
+                      th:text="${exp.fallecido.sexo}">-</span>
+              </td>
+              <td th:text="${#temporals.format(exp.fechaRegistro, 'dd/MM/yyyy')}">-</td>
+              <td>
+                <div class="d-flex gap-2">
+                  <a th:href="@{/expediente/detalle(id=${exp.idExpediente})}"
+                     class="btn-sigs btn-sigs-secondary btn-sigs-sm">
+                    <i class="bi bi-eye-fill"></i> Ver
+                  </a>
+                  <a sec:authorize="hasRole('admin')"
+                     th:href="@{/expediente/editar(id=${exp.idExpediente})}"
+                     class="btn-sigs btn-sigs-warning btn-sigs-sm">
+                    <i class="bi bi-pencil-fill"></i> Editar
+                  </a>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<th:block th:insert="~{layout/footer}"></th:block>
+</body>
+</html>

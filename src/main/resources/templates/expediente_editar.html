@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+
+<th:block th:insert="~{layout/header}"></th:block>
+
+<head><title>SIGS — Editar Expediente</title></head>
+<body>
+
+<div class="page-header">
+  <h1><i class="bi bi-pencil-fill me-2" style="color:var(--color-warning-lt)"></i>
+    Corregir Expediente: <span th:text="${expediente.numeroExpediente}">-</span>
+  </h1>
+  <p>Solo el Jefe de Área puede realizar correcciones en los expedientes registrados.</p>
+</div>
+
+<!-- Errores -->
+<div th:if="${errores}" class="alert-sigs alert-danger">
+  <i class="bi bi-exclamation-triangle-fill"></i>
+  <div>
+    <strong>Se encontraron los siguientes errores:</strong>
+    <ul><li th:each="err : ${errores}" th:text="${err}"></li></ul>
+  </div>
+</div>
+
+<form th:action="@{/expediente/editar(id=${expediente.idExpediente})}"
+      method="post" th:object="${expediente}" data-validate>
+
+  <!-- Datos del Fallecido -->
+  <div class="card mb-4">
+    <div class="card-header-custom">
+      <div class="card-header-icon" style="background:rgba(252,129,129,.1); color:var(--color-danger-lt);">
+        <i class="bi bi-person-x-fill"></i>
+      </div>
+      <h5>Datos del Fallecido</h5>
+    </div>
+    <div class="card-body-custom">
+      <div class="row g-3">
+        <div class="col-md-3">
+          <label for="dni" class="form-label">DNI</label>
+          <input type="text" id="dni" name="fallecido.dni"
+                 th:value="*{fallecido.dni}"
+                 class="form-control" maxlength="8" pattern="\d{8}" data-validate-dni required/>
+        </div>
+        <div class="col-md-4">
+          <label for="nombres" class="form-label">Nombres</label>
+          <input type="text" id="nombres" name="fallecido.nombres"
+                 th:value="*{fallecido.nombres}"
+                 class="form-control" maxlength="100" data-validate-alpha required/>
+        </div>
+        <div class="col-md-5">
+          <label for="apellidos" class="form-label">Apellidos</label>
+          <input type="text" id="apellidos" name="fallecido.apellidos"
+                 th:value="*{fallecido.apellidos}"
+                 class="form-control" maxlength="100" data-validate-alpha required/>
+        </div>
+        <div class="col-md-4">
+          <label for="fechaNacimiento" class="form-label">Fecha de Nacimiento</label>
+          <input type="date" id="fechaNacimiento" name="fallecido.fechaNacimiento"
+                 th:value="*{fallecido.fechaNacimiento}"
+                 class="form-control" required/>
+        </div>
+        <div class="col-md-4">
+          <label for="fechaFallecimiento" class="form-label">Fecha de Fallecimiento</label>
+          <input type="date" id="fechaFallecimiento" name="fallecido.fechaFallecimiento"
+                 th:value="*{fallecido.fechaFallecimiento}"
+                 class="form-control" required/>
+        </div>
+        <div class="col-md-4">
+          <label for="sexo" class="form-label">Sexo</label>
+          <select id="sexo" name="fallecido.sexo" class="form-select" required>
+            <option value="">— Seleccione —</option>
+            <option value="Masculino" th:selected="*{fallecido.sexo == 'Masculino'}">Masculino</option>
+            <option value="Femenino"  th:selected="*{fallecido.sexo == 'Femenino'}">Femenino</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Datos del Deudo -->
+  <div class="card mb-4">
+    <div class="card-header-custom">
+      <div class="card-header-icon" style="background:rgba(214,158,46,.1); color:var(--color-gold);">
+        <i class="bi bi-people-fill"></i>
+      </div>
+      <h5>Datos del Solicitante (Deudo)</h5>
+    </div>
+    <div class="card-body-custom">
+      <div class="row g-3">
+        <div class="col-md-3">
+          <label for="dniDeudo" class="form-label">DNI del Deudo</label>
+          <input type="text" id="dniDeudo" name="solicitud.dniDeudo"
+                 th:value="*{solicitud.dniDeudo}"
+                 class="form-control" maxlength="8" pattern="\d{8}" data-validate-dni required/>
+        </div>
+        <div class="col-md-5">
+          <label for="nombreDeudo" class="form-label">Nombre del Deudo</label>
+          <input type="text" id="nombreDeudo" name="solicitud.nombreDeudo"
+                 th:value="*{solicitud.nombreDeudo}"
+                 class="form-control" maxlength="100" required/>
+        </div>
+        <div class="col-md-4">
+          <label for="parentesco" class="form-label">Parentesco</label>
+          <input type="text" id="parentesco" name="solicitud.parentesco"
+                 th:value="*{solicitud.parentesco}"
+                 class="form-control" maxlength="50" required/>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Número de Expediente -->
+  <div class="card mb-4">
+    <div class="card-header-custom">
+      <div class="card-header-icon" style="background:rgba(49,130,206,.1); color:var(--color-accent);">
+        <i class="bi bi-folder2"></i>
+      </div>
+      <h5>Datos del Expediente</h5>
+    </div>
+    <div class="card-body-custom">
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label for="numeroExpediente" class="form-label">N° de Expediente</label>
+          <input type="text" id="numeroExpediente" name="numeroExpediente"
+                 th:value="*{numeroExpediente}"
+                 class="form-control" maxlength="20" required/>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Botones -->
+  <div class="d-flex justify-content-end gap-3">
+    <a th:href="@{/expediente/detalle(id=${expediente.idExpediente})}"
+       class="btn-sigs btn-sigs-secondary">
+      <i class="bi bi-x-circle"></i> Cancelar
+    </a>
+    <button type="submit" class="btn-sigs btn-sigs-warning">
+      <i class="bi bi-floppy-fill"></i> Guardar Correcciones
+    </button>
+  </div>
+
+</form>
+
+<th:block th:insert="~{layout/footer}"></th:block>
+</body>
+</html>

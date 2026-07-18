@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+
+<th:block th:insert="~{layout/header}"></th:block>
+
+<head><title>SIGS — Comprobante de Registro</title></head>
+<body>
+
+<div class="page-header">
+  <h1><i class="bi bi-check-circle-fill me-2" style="color:var(--color-success-lt)"></i>¡Expediente Registrado!</h1>
+  <p>El expediente fue guardado exitosamente en el sistema.</p>
+</div>
+
+<!-- Barra de pasos -->
+<div class="steps-bar mb-4">
+  <div class="step-item done"><div class="step-number"><i class="bi bi-check-lg"></i></div> Datos del Deudo</div>
+  <div class="step-item done"><div class="step-number"><i class="bi bi-check-lg"></i></div> Datos del Fallecido</div>
+  <div class="step-item active"><div class="step-number">3</div> Comprobante</div>
+</div>
+
+<!-- Alerta de éxito -->
+<div class="alert-sigs alert-success mb-4">
+  <i class="bi bi-check-circle-fill"></i>
+  <span>
+    Expediente registrado correctamente. N° de Expediente:
+    <strong th:text="${expediente.numeroExpediente}">-</strong>
+  </span>
+</div>
+
+<!-- Comprobante -->
+<div class="comprobante-box mb-4" id="comprobante-imprimible">
+  <div class="comprobante-header">
+    <h3><i class="bi bi-building-fill-check me-2"></i>MUNICIPALIDAD — ÁREA DE CEMENTERIO</h3>
+    <p>Comprobante de Registro de Servicio de Sepultura</p>
+  </div>
+  <div class="comprobante-body">
+    <div class="comprobante-grid">
+      <div class="comprobante-field">
+        <label>N° Comprobante</label>
+        <span th:text="${comprobante.idComprobante}">#</span>
+      </div>
+      <div class="comprobante-field">
+        <label>N° Expediente</label>
+        <span th:text="${expediente.numeroExpediente}">-</span>
+      </div>
+      <div class="comprobante-field">
+        <label>Fecha de Emisión</label>
+        <span th:text="${#temporals.format(comprobante.fechaEmision, 'dd/MM/yyyy')}">-</span>
+      </div>
+      <div class="comprobante-field">
+        <label>Fecha de Registro</label>
+        <span th:text="${#temporals.format(expediente.fechaRegistro, 'dd/MM/yyyy')}">-</span>
+      </div>
+    </div>
+
+    <hr class="section-divider"/>
+    <div class="row">
+      <div class="col-md-6">
+        <h6 class="text-uppercase fw-bold mb-3" style="font-size:.75rem; letter-spacing:.6px; color:var(--color-accent);">
+          <i class="bi bi-person-x me-1"></i> Datos del Fallecido
+        </h6>
+        <div class="comprobante-field mb-2">
+          <label>Nombres y Apellidos</label>
+          <span th:text="${expediente.fallecido.nombres + ' ' + expediente.fallecido.apellidos}">-</span>
+        </div>
+        <div class="comprobante-grid" style="grid-template-columns: 1fr 1fr; gap: 10px 20px;">
+          <div class="comprobante-field">
+            <label>DNI</label>
+            <span th:text="${expediente.fallecido.dni}">-</span>
+          </div>
+          <div class="comprobante-field">
+            <label>Sexo</label>
+            <span th:text="${expediente.fallecido.sexo}">-</span>
+          </div>
+          <div class="comprobante-field">
+            <label>Edad</label>
+            <span th:text="${expediente.fallecido.edad + ' años'}">-</span>
+          </div>
+          <div class="comprobante-field">
+            <label>Fecha Defunción</label>
+            <span th:text="${#temporals.format(expediente.fallecido.fechaFallecimiento, 'dd/MM/yyyy')}">-</span>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <h6 class="text-uppercase fw-bold mb-3" style="font-size:.75rem; letter-spacing:.6px; color:var(--color-accent);">
+          <i class="bi bi-people-fill me-1"></i> Datos del Solicitante (Deudo)
+        </h6>
+        <div class="comprobante-field mb-2">
+          <label>Nombre Completo</label>
+          <span th:text="${expediente.solicitud.nombreDeudo}">-</span>
+        </div>
+        <div class="comprobante-grid" style="grid-template-columns: 1fr 1fr; gap: 10px 20px;">
+          <div class="comprobante-field">
+            <label>DNI Deudo</label>
+            <span th:text="${expediente.solicitud.dniDeudo}">-</span>
+          </div>
+          <div class="comprobante-field">
+            <label>Parentesco</label>
+            <span th:text="${expediente.solicitud.parentesco}">-</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="comprobante-footer">
+    Este documento certifica el registro exitoso del servicio de sepultura en el sistema SIGS.<br/>
+    Municipalidad — Área de Cementerio
+  </div>
+</div>
+
+<!-- Botones de acción -->
+<div class="d-flex justify-content-end gap-3 no-print">
+  <a th:href="@{/consulta}" class="btn-sigs btn-sigs-secondary">
+    <i class="bi bi-search"></i> Volver al Listado
+  </a>
+  <button type="button" onclick="window.print()" class="btn-sigs btn-sigs-danger">
+    <i class="bi bi-file-earmark-pdf-fill"></i> Descargar / Imprimir Comprobante
+  </button>
+  <a th:href="@{/solicitud/nueva}" class="btn-sigs btn-sigs-primary">
+    <i class="bi bi-file-earmark-plus"></i> Nueva Solicitud
+  </a>
+</div>
+
+<th:block th:insert="~{layout/footer}"></th:block>
+</body>
+</html>

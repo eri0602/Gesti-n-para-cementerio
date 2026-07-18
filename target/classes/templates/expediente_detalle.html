@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="es">
+
+<th:block th:insert="~{layout/header}"></th:block>
+
+<head><title>SIGS — Detalle de Expediente</title></head>
+<body>
+
+<div class="page-header d-flex justify-content-between align-items-start">
+  <div>
+    <h1><i class="bi bi-folder2-open me-2" style="color:var(--color-accent)"></i>
+      Expediente: <span th:text="${expediente.numeroExpediente}">-</span>
+    </h1>
+    <p>Detalle completo del expediente de fallecido</p>
+  </div>
+  <a th:href="@{/consulta}" class="btn-sigs btn-sigs-secondary no-print" style="margin-top:4px;">
+    <i class="bi bi-arrow-left"></i> Volver a Consulta
+  </a>
+</div>
+
+<!-- Alerta de éxito si viene de edición -->
+<div th:if="${mensajeExito}" class="alert-sigs alert-success">
+  <i class="bi bi-check-circle-fill"></i>
+  <span th:text="${mensajeExito}"></span>
+</div>
+
+<div class="card mb-4">
+  <div class="card-header-custom">
+    <div class="card-header-icon" style="background:rgba(49,130,206,.1); color:var(--color-accent);">
+      <i class="bi bi-person-x-fill"></i>
+    </div>
+    <h5>Información del Fallecido</h5>
+  </div>
+  <div class="card-body-custom">
+    <div class="row g-3">
+      <div class="col-md-6">
+        <table class="table table-sm table-borderless">
+          <tr><th style="width:45%; color:var(--text-muted); font-size:.8rem;">Nombres:</th>
+              <td th:text="${expediente.fallecido.nombres}">-</td></tr>
+          <tr><th style="color:var(--text-muted); font-size:.8rem;">Apellidos:</th>
+              <td th:text="${expediente.fallecido.apellidos}">-</td></tr>
+          <tr><th style="color:var(--text-muted); font-size:.8rem;">DNI:</th>
+              <td><strong th:text="${expediente.fallecido.dni}">-</strong></td></tr>
+          <tr><th style="color:var(--text-muted); font-size:.8rem;">Sexo:</th>
+              <td>
+                <span th:class="${expediente.fallecido.sexo == 'Masculino' ? 'badge-sexo-m' : 'badge-sexo-f'}"
+                      th:text="${expediente.fallecido.sexo}">-</span>
+              </td></tr>
+        </table>
+      </div>
+      <div class="col-md-6">
+        <table class="table table-sm table-borderless">
+          <tr><th style="width:45%; color:var(--text-muted); font-size:.8rem;">Fecha Nacimiento:</th>
+              <td th:text="${#temporals.format(expediente.fallecido.fechaNacimiento, 'dd/MM/yyyy')}">-</td></tr>
+          <tr><th style="color:var(--text-muted); font-size:.8rem;">Fecha Fallecimiento:</th>
+              <td th:text="${#temporals.format(expediente.fallecido.fechaFallecimiento, 'dd/MM/yyyy')}">-</td></tr>
+          <tr><th style="color:var(--text-muted); font-size:.8rem;">Edad:</th>
+              <td th:text="${expediente.fallecido.edad + ' años'}">-</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4">
+  <div class="col-md-6">
+    <div class="card h-100">
+      <div class="card-header-custom">
+        <div class="card-header-icon" style="background:rgba(246,173,85,.1); color:var(--color-gold);">
+          <i class="bi bi-people-fill"></i>
+        </div>
+        <h5>Datos del Solicitante</h5>
+      </div>
+      <div class="card-body-custom">
+        <table class="table table-sm table-borderless">
+          <tr><th style="color:var(--text-muted); font-size:.8rem;">Deudo:</th>
+              <td th:text="${expediente.solicitud.nombreDeudo}">-</td></tr>
+          <tr><th style="color:var(--text-muted); font-size:.8rem;">DNI Deudo:</th>
+              <td th:text="${expediente.solicitud.dniDeudo}">-</td></tr>
+          <tr><th style="color:var(--text-muted); font-size:.8rem;">Parentesco:</th>
+              <td th:text="${expediente.solicitud.parentesco}">-</td></tr>
+          <tr><th style="color:var(--text-muted); font-size:.8rem;">Fecha Solicitud:</th>
+              <td th:text="${#temporals.format(expediente.solicitud.fechaSolicitud, 'dd/MM/yyyy')}">-</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card h-100">
+      <div class="card-header-custom">
+        <div class="card-header-icon" style="background:rgba(72,187,120,.1); color:var(--color-success-lt);">
+          <i class="bi bi-folder-fill"></i>
+        </div>
+        <h5>Datos del Expediente</h5>
+      </div>
+      <div class="card-body-custom">
+        <table class="table table-sm table-borderless">
+          <tr><th style="color:var(--text-muted); font-size:.8rem;">N° Expediente:</th>
+              <td><strong th:text="${expediente.numeroExpediente}">-</strong></td></tr>
+          <tr><th style="color:var(--text-muted); font-size:.8rem;">Fecha Registro:</th>
+              <td th:text="${#temporals.format(expediente.fechaRegistro, 'dd/MM/yyyy')}">-</td></tr>
+          <tr th:if="${comprobante != null}">
+            <th style="color:var(--text-muted); font-size:.8rem;">Comprobante:</th>
+            <td>Sí — N°
+              <strong th:text="${comprobante.idComprobante}">-</strong>
+              (<span th:text="${#temporals.format(comprobante.fechaEmision, 'dd/MM/yyyy')}">-</span>)
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Botones de acción (Admin) -->
+<div class="d-flex justify-content-end gap-3 mt-4 no-print" sec:authorize="hasRole('admin')">
+  <a th:href="@{/expediente/editar(id=${expediente.idExpediente})}"
+     class="btn-sigs btn-sigs-warning">
+    <i class="bi bi-pencil-fill"></i> Editar / Corregir Datos
+  </a>
+</div>
+
+<th:block th:insert="~{layout/footer}"></th:block>
+</body>
+</html>

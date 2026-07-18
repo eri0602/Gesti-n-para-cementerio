@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+
+<th:block th:insert="~{layout/header}"></th:block>
+
+<head><title>SIGS — Registrar Expediente</title></head>
+<body>
+
+<div class="page-header">
+  <h1><i class="bi bi-folder-plus me-2" style="color:var(--color-accent)"></i>Registrar Expediente de Fallecido</h1>
+  <p>Paso 2 de 2 — Complete los datos del fallecido y el número de expediente</p>
+</div>
+
+<!-- Barra de pasos -->
+<div class="steps-bar mb-4">
+  <div class="step-item done"><div class="step-number"><i class="bi bi-check-lg"></i></div> Datos del Deudo</div>
+  <div class="step-item active"><div class="step-number">2</div> Datos del Fallecido</div>
+  <div class="step-item"><div class="step-number">3</div> Comprobante</div>
+</div>
+
+<!-- Errores de validación -->
+<div th:if="${errores}" class="alert-sigs alert-danger" role="alert">
+  <i class="bi bi-exclamation-triangle-fill"></i>
+  <div>
+    <strong>Se encontraron los siguientes errores:</strong>
+    <ul>
+      <li th:each="err : ${errores}" th:text="${err}"></li>
+    </ul>
+  </div>
+</div>
+
+<!-- Datos de la solicitud (solo lectura) -->
+<div class="data-readonly mb-3">
+  <h6><i class="bi bi-person-check me-1"></i> Solicitud Asociada — Datos del Deudo (solo lectura)</h6>
+  <div class="row g-2">
+    <div class="col-md-4">
+      <small class="text-muted">N° Solicitud</small>
+      <div class="fw-bold" th:text="${solicitud.idSolicitud}">-</div>
+    </div>
+    <div class="col-md-4">
+      <small class="text-muted">Nombre del Deudo</small>
+      <div class="fw-bold" th:text="${solicitud.nombreDeudo}">-</div>
+    </div>
+    <div class="col-md-2">
+      <small class="text-muted">DNI Deudo</small>
+      <div class="fw-bold" th:text="${solicitud.dniDeudo}">-</div>
+    </div>
+    <div class="col-md-2">
+      <small class="text-muted">Parentesco</small>
+      <div class="fw-bold" th:text="${solicitud.parentesco}">-</div>
+    </div>
+  </div>
+</div>
+
+<!-- Formulario del expediente -->
+<div class="card">
+  <div class="card-header-custom">
+    <div class="card-header-icon" style="background:rgba(49,130,206,.1); color:var(--color-accent);">
+      <i class="bi bi-person-x-fill"></i>
+    </div>
+    <h5>Datos del Fallecido y Expediente</h5>
+  </div>
+  <div class="card-body-custom">
+    <form th:action="@{/expediente/nuevo(idSolicitud=${solicitud.idSolicitud})}"
+          method="post" th:object="${expediente}" data-validate>
+
+      <!-- Sección: Datos del Fallecido -->
+      <h6 class="text-uppercase fw-bold mb-3" style="font-size:.78rem; letter-spacing:.5px; color:var(--color-accent);">
+        <i class="bi bi-person-x me-1"></i> Datos del Fallecido
+      </h6>
+
+      <div class="row g-3 mb-3">
+        <div class="col-md-3">
+          <label for="dni" class="form-label"><i class="bi bi-credit-card me-1"></i> DNI</label>
+          <input type="text" id="dni" name="fallecido.dni"
+                 th:value="*{fallecido.dni}"
+                 class="form-control" placeholder="12345678"
+                 maxlength="8" pattern="\d{8}" data-validate-dni required/>
+        </div>
+        <div class="col-md-4">
+          <label for="nombres" class="form-label">Nombres</label>
+          <input type="text" id="nombres" name="fallecido.nombres"
+                 th:value="*{fallecido.nombres}"
+                 class="form-control" placeholder="Nombres del fallecido"
+                 maxlength="100" data-validate-alpha required/>
+        </div>
+        <div class="col-md-5">
+          <label for="apellidos" class="form-label">Apellidos</label>
+          <input type="text" id="apellidos" name="fallecido.apellidos"
+                 th:value="*{fallecido.apellidos}"
+                 class="form-control" placeholder="Apellidos del fallecido"
+                 maxlength="100" data-validate-alpha required/>
+        </div>
+        <div class="col-md-4">
+          <label for="fechaNacimiento" class="form-label">Fecha de Nacimiento</label>
+          <input type="date" id="fechaNacimiento" name="fallecido.fechaNacimiento"
+                 th:value="*{fallecido.fechaNacimiento}"
+                 class="form-control" required/>
+        </div>
+        <div class="col-md-4">
+          <label for="fechaFallecimiento" class="form-label">Fecha de Fallecimiento</label>
+          <input type="date" id="fechaFallecimiento" name="fallecido.fechaFallecimiento"
+                 th:value="*{fallecido.fechaFallecimiento}"
+                 class="form-control" required/>
+        </div>
+        <div class="col-md-4">
+          <label for="sexo" class="form-label">Sexo</label>
+          <select id="sexo" name="fallecido.sexo" class="form-select" required>
+            <option value="">— Seleccione —</option>
+            <option value="Masculino" th:selected="*{fallecido.sexo == 'Masculino'}">Masculino</option>
+            <option value="Femenino"  th:selected="*{fallecido.sexo == 'Femenino'}">Femenino</option>
+          </select>
+        </div>
+      </div>
+
+      <hr class="section-divider"/>
+
+      <!-- Sección: Número de Expediente -->
+      <h6 class="text-uppercase fw-bold mb-3" style="font-size:.78rem; letter-spacing:.5px; color:var(--color-accent);">
+        <i class="bi bi-folder2 me-1"></i> Número de Expediente
+      </h6>
+
+      <div class="row g-3 mb-3">
+        <div class="col-md-4">
+          <label for="numeroExpediente" class="form-label">N° de Expediente</label>
+          <input type="text" id="numeroExpediente" name="numeroExpediente"
+                 th:value="*{numeroExpediente}"
+                 class="form-control" placeholder="EXP-2026-0001"
+                 maxlength="20" required/>
+          <div class="form-text">Formato sugerido: EXP-AAAA-####</div>
+        </div>
+      </div>
+
+      <hr class="section-divider"/>
+
+      <div class="d-flex justify-content-end gap-3">
+        <a th:href="@{/dashboard}" class="btn-sigs btn-sigs-secondary">
+          <i class="bi bi-arrow-left"></i> Cancelar
+        </a>
+        <button type="submit" class="btn-sigs btn-sigs-success">
+          <i class="bi bi-floppy-fill"></i> Guardar Expediente y Generar Comprobante
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<th:block th:insert="~{layout/footer}"></th:block>
+</body>
+</html>

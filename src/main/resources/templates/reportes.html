@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+
+<th:block th:insert="~{layout/header}"></th:block>
+
+<head><title>SIGS — Reportes y Estadísticas</title></head>
+<body>
+
+<div class="page-header">
+  <h1><i class="bi bi-bar-chart-fill me-2" style="color:var(--color-gold)"></i>Reportes y Estadísticas</h1>
+  <p>Genere estadísticas de fallecidos por sexo y grupo etario para cualquier período.</p>
+</div>
+
+<!-- Filtros de período -->
+<div class="card mb-4">
+  <div class="card-header-custom">
+    <div class="card-header-icon" style="background:rgba(214,158,46,.1); color:var(--color-gold);">
+      <i class="bi bi-calendar-range-fill"></i>
+    </div>
+    <h5>Seleccionar Período</h5>
+  </div>
+  <div class="card-body-custom">
+    <form method="get" th:action="@{/reportes}">
+      <input type="hidden" name="generar" value="1"/>
+      <div class="row g-3 align-items-end">
+        <div class="col-md-3">
+          <label for="fDesde" class="form-label">Desde</label>
+          <input type="date" id="fDesde" name="desde"
+                 class="form-control" th:value="${desde}" required/>
+        </div>
+        <div class="col-md-3">
+          <label for="fHasta" class="form-label">Hasta</label>
+          <input type="date" id="fHasta" name="hasta"
+                 class="form-control" th:value="${hasta}" required/>
+        </div>
+        <div class="col-md-6 d-flex gap-2">
+          <!-- Atajos de período -->
+          <a th:href="@{/reportes(desde=${#temporals.format(T(java.time.LocalDate).now().withDayOfYear(1), 'yyyy-MM-dd')}, hasta=${#temporals.format(T(java.time.LocalDate).now(), 'yyyy-MM-dd')}, generar=1)}"
+             class="btn-sigs btn-sigs-secondary btn-sigs-sm">Año actual</a>
+          <a th:href="@{/reportes(desde=${#temporals.format(T(java.time.LocalDate).now().withDayOfMonth(1), 'yyyy-MM-dd')}, hasta=${#temporals.format(T(java.time.LocalDate).now(), 'yyyy-MM-dd')}, generar=1)}"
+             class="btn-sigs btn-sigs-secondary btn-sigs-sm">Mes actual</a>
+          <button type="submit" class="btn-sigs btn-sigs-primary ms-auto">
+            <i class="bi bi-bar-chart-fill"></i> Generar Estadísticas
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Estadísticas generadas -->
+<div th:if="${estadisticas}">
+
+  <div class="row g-4 mb-4">
+
+    <!-- Por Sexo -->
+    <div class="col-md-6">
+      <div class="card h-100">
+        <div class="card-header-custom">
+          <div class="card-header-icon" style="background:rgba(49,130,206,.1); color:var(--color-accent);">
+            <i class="bi bi-gender-ambiguous"></i>
+          </div>
+          <h5>Fallecidos por Sexo</h5>
+        </div>
+        <div class="card-body-custom">
+          <div class="chart-container mb-3">
+            <canvas id="chartSexo"></canvas>
+          </div>
+          <table class="table-sigs">
+            <thead><tr><th>Sexo</th><th>Total</th><th>%</th></tr></thead>
+            <tbody>
+              <th:block th:with="totalSexo=${#aggregates.sum(estadisticas['por_sexo'].![total])}">
+                <tr th:each="row : ${estadisticas['por_sexo']}">
+                  <td>
+                    <span th:class="${row.sexo == 'Masculino' ? 'badge-sexo-m' : 'badge-sexo-f'}"
+                          th:text="${row.sexo}">-</span>
+                  </td>
+                  <td><strong th:text="${row.total}">0</strong></td>
+                  <td th:text="${totalSexo > 0 ? #numbers.formatDecimal(row.total * 100.0 / totalSexo, 1, 1) + '%' : '-'}">-</td>
+                </tr>
+              </th:block>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Por Grupo Etario -->
+    <div class="col-md-6">
+      <div class="card h-100">
+        <div class="card-header-custom">
+          <div class="card-header-icon" style="background:rgba(214,158,46,.1); color:var(--color-gold);">
+            <i class="bi bi-people-fill"></i>
+          </div>
+          <h5>Fallecidos por Grupo Etario</h5>
+        </div>
+        <div class="card-body-custom">
+          <div class="chart-container mb-3">
+            <canvas id="chartEdad"></canvas>
+          </div>
+          <table class="table-sigs">
+            <thead><tr><th>Grupo Etario</th><th>Total</th></tr></thead>
+            <tbody>
+              <tr th:each="row : ${estadisticas['por_grupo_etario']}">
+                <td th:text="${row.grupoEtario}">-</td>
+                <td><strong th:text="${row.total}">0</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Botón exportar PDF -->
+  <div class="d-flex justify-content-end gap-3 mb-4 no-print">
+    <a th:href="@{/reportes/pdf(desde=${desde}, hasta=${hasta})}"
+       class="btn-sigs btn-sigs-danger" target="_blank">
+      <i class="bi bi-file-earmark-pdf-fill"></i> Exportar a PDF
+    </a>
+  </div>
+
+  <!-- Scripts Chart.js con datos de Thymeleaf -->
+  <script th:inline="javascript">
+  document.addEventListener('DOMContentLoaded', function () {
+    // Datos Sexo
+    const labelsSexo = /*[[${estadisticas['por_sexo'].![sexo]}]]*/ [];
+    const dataSexo   = /*[[${estadisticas['por_sexo'].![total]}]]*/ [];
+
+    new Chart(document.getElementById('chartSexo'), {
+      type: 'doughnut',
+      data: {
+        labels: labelsSexo,
+        datasets: [{
+          data: dataSexo,
+          backgroundColor: ['#3182ce', '#fc8181'],
+          borderWidth: 0,
+          hoverOffset: 6
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom' } }
+      }
+    });
+
+    // Datos Grupo Etario
+    const labelsEdad = /*[[${estadisticas['por_grupo_etario'].![grupoEtario]}]]*/ [];
+    const dataEdad   = /*[[${estadisticas['por_grupo_etario'].![total]}]]*/ [];
+
+    new Chart(document.getElementById('chartEdad'), {
+      type: 'bar',
+      data: {
+        labels: labelsEdad,
+        datasets: [{
+          label: 'Fallecidos',
+          data: dataEdad,
+          backgroundColor: 'rgba(49,130,206,.7)',
+          borderColor: 'rgba(49,130,206,1)',
+          borderWidth: 1.5,
+          borderRadius: 6
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+      }
+    });
+  });
+  </script>
+
+</div>
+
+<th:block th:insert="~{layout/footer}"></th:block>
+</body>
+</html>
